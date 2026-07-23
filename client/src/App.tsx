@@ -1,32 +1,17 @@
-import { useEffect, useState } from "react";
-
-type HealthResponse = {
-  status: string;
-  timestamp: string;
-};
+import { useState } from "react";
+import ClientList from "./components/ClientList";
+import ClientForm from "./components/ClientForm";
 
 function App() {
-  const [health, setHealth] = useState<HealthResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetch("http://localhost:3001/api/health")
-      .then((res) => res.json())
-      .then((data: HealthResponse) => setHealth(data))
-      .catch((err) => setError(err.message));
-  }, []);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   return (
     <div>
       <h1>EIZOU Creatives Operations Workspace</h1>
-      {error && <p style={{ color: "red" }}>Error: {error}</p>}
-      {!error && !health && <p>Loading...</p>}
-      {health && (
-        <p>
-          Backend status: <strong>{health.status}</strong> (as of{" "}
-          {health.timestamp})
-        </p>
-      )}
+      <h2>Add Client</h2>
+      <ClientForm onCreated={() => setRefreshKey((k) => k + 1)} />
+      <h2>Clients</h2>
+      <ClientList key={refreshKey} />
     </div>
   );
 }
