@@ -1,0 +1,94 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum ContentType {
+  GRAPHIC
+  PHOTO
+  REEL
+}
+
+enum TaskStatus {
+  PLANNED
+  IN_PRODUCTION
+  INTERNAL_REVIEW
+  CLIENT_REVIEW
+  APPROVED
+  SCHEDULED
+  PUBLISHED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+model Client {
+  id             Int              @id @default(autoincrement())
+  name           String
+  contractStart  DateTime
+  contractEnd    DateTime
+  driveFolder    String?
+  notes          String?
+  isActive       Boolean          @default(true)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  deliverablePlans DeliverablePlan[]
+  tasks            Task[]
+}
+
+model DeliverablePlan {
+  id             Int      @id @default(autoincrement())
+  clientId       Int
+  client         Client   @relation(fields: [clientId], references: [id])
+  periodMonth    Int
+  periodYear     Int
+  graphicsQuota  Int
+  photoQuota     Int
+  reelsQuota     Int
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([clientId, periodMonth, periodYear])
+}
+
+model TeamMember {
+  id       Int     @id @default(autoincrement())
+  name     String
+  role     String
+  isActive Boolean @default(true)
+
+  tasks Task[]
+}
+
+model Task {
+  id                 Int         @id @default(autoincrement())
+  title              String
+  clientId           Int
+  client             Client      @relation(fields: [clientId], references: [id])
+  assignedToId       Int?
+  assignedTo         TeamMember? @relation(fields: [assignedToId], references: [id])
+  contentType        ContentType
+  platforms          String
+  quantity           Int         @default(1)
+  status             TaskStatus  @default(PLANNED)
+  reviewRound        Int         @default(0)
+  priority           Priority    @default(MEDIUM)
+  deadline           DateTime?
+  scheduledPublishDate DateTime?
+  actualPublishDate  DateTime?
+  caption            String?
+  instructions       String?
+  workingFileLink    String?
+  driveLink          String?
+  publishedPostLink  String?
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+}
