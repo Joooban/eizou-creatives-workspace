@@ -4,9 +4,11 @@ const API_BASE = "http://localhost:3001/api";
 
 export async function getClients(): Promise<Client[]> {
   const res = await fetch(`${API_BASE}/clients`);
+
   if (!res.ok) {
     throw new Error(`Failed to fetch clients: ${res.status}`);
   }
+
   return res.json();
 }
 
@@ -28,4 +30,26 @@ export async function createClient(data: {
   }
 
   return res.json();
+}
+
+export async function getClientQuota(clientId: number, month: number, year: number) {
+  const res = await fetch(
+    `${API_BASE}/clients/${clientId}/quota?month=${month}&year=${year}`
+  );
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch quota: ${res.status}`);
+  }
+
+  return res.json();
+}
+
+export async function deleteClient(id: number): Promise<void> {
+  const res = await fetch(`${API_BASE}/clients/${id}`, {
+    method: "DELETE",
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to delete client: ${res.status}`);
+  }
 }

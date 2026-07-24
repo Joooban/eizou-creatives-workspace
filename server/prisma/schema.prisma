@@ -13,7 +13,7 @@ enum ContentType {
   REEL
 }
 
-enum TaskStatus {
+enum TaskStatus { 
   PLANNED
   IN_PRODUCTION
   INTERNAL_REVIEW
@@ -59,6 +59,16 @@ model DeliverablePlan {
   @@unique([clientId, periodMonth, periodYear])
 }
 
+model TaskPublishedLink {
+  id       Int    @id @default(autoincrement())
+  taskId   Int
+  task     Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  platform String
+  url      String
+
+  @@unique([taskId, platform])
+}
+
 model TeamMember {
   id       Int     @id @default(autoincrement())
   name     String
@@ -91,4 +101,5 @@ model Task {
   publishedPostLink  String?
   createdAt          DateTime    @default(now())
   updatedAt          DateTime    @updatedAt
+  publishedLinks TaskPublishedLink[]
 }

@@ -25,7 +25,6 @@ function TaskForm({ onCreated }: TaskFormProps) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Load dropdown options once, when the form mounts
   useEffect(() => {
     getClients().then(setClients).catch(() => setError("Failed to load clients"));
     getTeamMembers().then(setMembers).catch(() => setError("Failed to load team members"));
@@ -74,87 +73,94 @@ function TaskForm({ onCreated }: TaskFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <label htmlFor="title">Title</label>
-        <input id="title" value={title} onChange={(e) => setTitle(e.target.value)} required />
-      </div>
+    <div className="card">
+      <h2 className="section-title">Add Task</h2>
+      <form onSubmit={handleSubmit}>
+        <div className="form-grid">
+          <div className="field">
+            <label htmlFor="title">Title</label>
+            <input id="title" value={title} onChange={(e) => setTitle(e.target.value)} required />
+          </div>
 
-      <div>
-        <label htmlFor="client">Client</label>
-        <select id="client" value={clientId} onChange={(e) => setClientId(e.target.value)} required>
-          <option value="">-- Select a client --</option>
-          {clients.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name}
-            </option>
-          ))}
-        </select>
-      </div>
+          <div className="field">
+            <label htmlFor="client">Client</label>
+            <select id="client" value={clientId} onChange={(e) => setClientId(e.target.value)} required>
+              <option value="">-- Select a client --</option>
+              {clients.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-      <div>
-        <label htmlFor="assignedTo">Assigned To</label>
-        <select id="assignedTo" value={assignedToId} onChange={(e) => setAssignedToId(e.target.value)}>
-          <option value="">Unassigned</option>
-          {members.map((m) => (
-            <option key={m.id} value={m.id}>
-              {m.name}
-            </option>
-          ))}
-        </select>
-      </div>
+          <div className="field">
+            <label htmlFor="assignedTo">Assigned To</label>
+            <select id="assignedTo" value={assignedToId} onChange={(e) => setAssignedToId(e.target.value)}>
+              <option value="">Unassigned</option>
+              {members.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-      <div>
-        <label htmlFor="contentType">Content Type</label>
-        <select
-          id="contentType"
-          value={contentType}
-          onChange={(e) => setContentType(e.target.value as ContentType)}
-        >
-          <option value="GRAPHIC">Graphic</option>
-          <option value="PHOTO">Photo</option>
-          <option value="REEL">Reel</option>
-        </select>
-      </div>
+          <div className="field">
+            <label htmlFor="contentType">Content Type</label>
+            <select
+              id="contentType"
+              value={contentType}
+              onChange={(e) => setContentType(e.target.value as ContentType)}
+            >
+              <option value="GRAPHIC">Graphic</option>
+              <option value="PHOTO">Photo</option>
+              <option value="REEL">Reel</option>
+            </select>
+          </div>
 
-      <div>
-        <span>Platforms</span>
-        {["IG", "FB", "TikTok"].map((platform) => (
-          <label key={platform} style={{ marginLeft: "8px" }}>
+          <div className="field">
+            <label htmlFor="priority">Priority</label>
+            <select id="priority" value={priority} onChange={(e) => setPriority(e.target.value as Priority)}>
+              <option value="LOW">Low</option>
+              <option value="MEDIUM">Medium</option>
+              <option value="HIGH">High</option>
+            </select>
+          </div>
+
+          <div className="field">
+            <label htmlFor="deadline">Deadline</label>
             <input
-              type="checkbox"
-              checked={platforms.includes(platform)}
-              onChange={() => togglePlatform(platform)}
+              id="deadline"
+              type="date"
+              value={deadline}
+              onChange={(e) => setDeadline(e.target.value)}
             />
-            {platform}
-          </label>
-        ))}
-      </div>
+          </div>
+        </div>
 
-      <div>
-        <label htmlFor="priority">Priority</label>
-        <select id="priority" value={priority} onChange={(e) => setPriority(e.target.value as Priority)}>
-          <option value="LOW">Low</option>
-          <option value="MEDIUM">Medium</option>
-          <option value="HIGH">High</option>
-        </select>
-      </div>
+        <div className="field" style={{ marginBottom: "1rem" }}>
+          <label>Platforms</label>
+          <div className="checkbox-row">
+            {["IG", "FB", "TikTok"].map((platform) => (
+              <label key={platform}>
+                <input
+                  type="checkbox"
+                  checked={platforms.includes(platform)}
+                  onChange={() => togglePlatform(platform)}
+                />
+                {platform}
+              </label>
+            ))}
+          </div>
+        </div>
 
-      <div>
-        <label htmlFor="deadline">Deadline</label>
-        <input
-          id="deadline"
-          type="date"
-          value={deadline}
-          onChange={(e) => setDeadline(e.target.value)}
-        />
-      </div>
-
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <button type="submit" disabled={submitting}>
-        {submitting ? "Saving..." : "Add Task"}
-      </button>
-    </form>
+        {error && <p className="error-text">{error}</p>}
+        <button type="submit" className="btn btn-primary" disabled={submitting}>
+          {submitting ? "Saving..." : "Add Task"}
+        </button>
+      </form>
+    </div>
   );
 }
 

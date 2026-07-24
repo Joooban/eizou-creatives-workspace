@@ -1,14 +1,13 @@
 import { useState } from "react";
-import { createClient } from "../api/clients";
+import { createTeamMember } from "../api/teamMembers";
 
-type ClientFormProps = {
+type TeamMemberFormProps = {
   onCreated: () => void;
 };
 
-function ClientForm({ onCreated }: ClientFormProps) {
+function TeamMemberForm({ onCreated }: TeamMemberFormProps) {
   const [name, setName] = useState("");
-  const [contractStart, setContractStart] = useState("");
-  const [contractEnd, setContractEnd] = useState("");
+  const [role, setRole] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -18,10 +17,9 @@ function ClientForm({ onCreated }: ClientFormProps) {
     setError(null);
 
     try {
-      await createClient({ name, contractStart, contractEnd });
+      await createTeamMember({ name, role });
       setName("");
-      setContractStart("");
-      setContractEnd("");
+      setRole("");
       onCreated();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
@@ -32,11 +30,11 @@ function ClientForm({ onCreated }: ClientFormProps) {
 
   return (
     <div className="card">
-      <h2 className="section-title">Add Client</h2>
+      <h2 className="section-title">Add Team Member</h2>
       <form onSubmit={handleSubmit}>
         <div className="form-grid">
           <div className="field">
-            <label htmlFor="name">Client Name</label>
+            <label htmlFor="name">Name</label>
             <input
               id="name"
               type="text"
@@ -46,33 +44,23 @@ function ClientForm({ onCreated }: ClientFormProps) {
             />
           </div>
           <div className="field">
-            <label htmlFor="contractStart">Contract Start</label>
+            <label htmlFor="role">Role</label>
             <input
-              id="contractStart"
-              type="date"
-              value={contractStart}
-              onChange={(e) => setContractStart(e.target.value)}
-              required
-            />
-          </div>
-          <div className="field">
-            <label htmlFor="contractEnd">Contract End</label>
-            <input
-              id="contractEnd"
-              type="date"
-              value={contractEnd}
-              onChange={(e) => setContractEnd(e.target.value)}
+              id="role"
+              type="text"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
               required
             />
           </div>
         </div>
         {error && <p className="error-text">{error}</p>}
         <button type="submit" className="btn btn-primary" disabled={submitting}>
-          {submitting ? "Saving..." : "Add Client"}
+          {submitting ? "Saving..." : "Add Team Member"}
         </button>
       </form>
     </div>
   );
 }
 
-export default ClientForm;
+export default TeamMemberForm;

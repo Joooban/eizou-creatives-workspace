@@ -9,6 +9,13 @@ export type TaskStatus =
   | "PUBLISHED";
 export type Priority = "LOW" | "MEDIUM" | "HIGH";
 
+export type PublishedLink = {
+  id: number;
+  taskId: number;
+  platform: string;
+  url: string;
+};
+
 export type Task = {
   id: number;
   title: string;
@@ -30,6 +37,7 @@ export type Task = {
   workingFileLink: string | null;
   driveLink: string | null;
   publishedPostLink: string | null;
+  publishedLinks: PublishedLink[];
   createdAt: string;
   updatedAt: string;
 };
