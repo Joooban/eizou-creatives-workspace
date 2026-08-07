@@ -1,6 +1,18 @@
 import React, { useMemo, useState } from "react";
 import { updateTask, deleteTask } from "../api/tasks";
-import type { Task, TaskStatus, ContentType } from "../types/task";
+import TaskDetail from "./TaskDetail";
+import type { Task, TaskStatus, ContentType, Priority } from "../types/task";
+
+const PRIORITY_LABELS: Record<Priority, string> = {
+  LOW: "Low",
+  MEDIUM: "Medium",
+  HIGH: "High",
+};
+
+function isOverdue(task: Task): boolean {
+  if (!task.deadline || task.status === "PUBLISHED") return false;
+  return new Date(task.deadline) < new Date();
+}
 
 const STATUS_OPTIONS: TaskStatus[] = [
   "PLANNED",
@@ -34,7 +46,9 @@ function TaskList({ tasks, loading, error: loadError, onTaskUpdated, onTaskDelet
 
   const [pendingPublishId, setPendingPublishId] = useState<number | null>(null);
   const [publishLinks, setPublishLinks] = useState<Record<string, string>>({});
-  
+
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+
   async function handleStatusChange(taskId: number, newStatus: TaskStatus) {
     if (newStatus === "PUBLISHED") {
       // Don't save yet — open the inline link prompt first
@@ -178,6 +192,7 @@ function TaskList({ tasks, loading, error: loadError, onTaskUpdated, onTaskDelet
       {filteredTasks.length === 0 ? (
         <p className="empty-state">No tasks match the current filters.</p>
       ) : (
+        <div className="table-scroll">
         <table className="data-table">
           <thead>
             <tr>
@@ -185,8 +200,11 @@ function TaskList({ tasks, loading, error: loadError, onTaskUpdated, onTaskDelet
               <th>Client</th>
               <th>Assigned To</th>
               <th>Type</th>
+              <th>Priority</th>
               <th>Status</th>
               <th>Deadline</th>
+              <th> Raw Footage</th>
+              <th> Output</th>
               <th></th>
             </tr>
           </thead>
@@ -194,10 +212,20 @@ function TaskList({ tasks, loading, error: loadError, onTaskUpdated, onTaskDelet
               {filteredTasks.map((task) => (
                 <React.Fragment key={task.id}>
                   <tr>
-                  <td>{task.title}</td>
+                  <td>
+                    <button className="link-button" onClick={() => setSelectedTask(task)}>
+                      {task.title}
+                    </button>
+                  </td>
                   <td>{task.client.name}</td>
                   <td>{task.assignedTo?.name ?? "Unassigned"}</td>
                   <td>{task.contentType}</td>
+                  <td>
+                    <span className={`priority-badge priority-${task.priority.toLowerCase()}`}>
+                      <span className="priority-dot" />
+                      {PRIORITY_LABELS[task.priority]}
+                    </span>
+                  </td>
                   <td>
                     <select
                       className={`status-select s-${task.status.toLowerCase()}`}
@@ -210,8 +238,26 @@ function TaskList({ tasks, loading, error: loadError, onTaskUpdated, onTaskDelet
                       ))}
                     </select>
                   </td>
-                  <td className="mono">
+                  <td className={`mono ${isOverdue(task) ? "overdue" : ""}`}>
                     {task.deadline ? new Date(task.deadline).toLocaleDateString() : "—"}
+                  </td>
+                  <td>
+                    {task.workingFileLink ? (
+                      <a href={task.workingFileLink} target="_blank" rel="noopener noreferrer">
+                        Link
+                      </a>
+                    ) : (
+                      "—"
+                    )}
+                  </td>
+                  <td>
+                    {task.driveLink ? (
+                      <a href={task.driveLink} target="_blank" rel="noopener noreferrer">
+                        Link
+                      </a>
+                    ) : (
+                      "—"
+                    )}
                   </td>
                   <td>
                     <button className="btn btn-danger btn-sm" onClick={() => handleDelete(task.id, task.title)}>
@@ -222,7 +268,7 @@ function TaskList({ tasks, loading, error: loadError, onTaskUpdated, onTaskDelet
 
                 {pendingPublishId === task.id && (
                   <tr>
-                    <td colSpan={7}>
+                    <td colSpan={10}>
                       <div className="publish-prompt-group">
                         {task.platforms.split(",").map((platform) => (
                           <div className="publish-prompt" key={platform}>
@@ -258,6 +304,18 @@ function TaskList({ tasks, loading, error: loadError, onTaskUpdated, onTaskDelet
             ))}
           </tbody>
         </table>
+        </div>
+      )}
+
+      {selectedTask && (
+        <TaskDetail
+          task={selectedTask}
+          onClose={() => setSelectedTask(null)}
+          onUpdated={(updated) => {
+            onTaskUpdated(updated);
+            setSelectedTask(updated);
+          }}
+        />
       )}
     </div>
   );

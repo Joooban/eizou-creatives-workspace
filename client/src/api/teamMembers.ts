@@ -1,6 +1,5 @@
 import type { TeamMember } from "../types/teamMember";
-
-const API_BASE = "http://localhost:3001/api";
+import { API_BASE } from "./config";
 
 export async function getTeamMembers(): Promise<TeamMember[]> {
   const res = await fetch(`${API_BASE}/team-members`);

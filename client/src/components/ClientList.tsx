@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getClients, deleteClient } from "../api/clients";
+import ClientEditModal from "./ClientEditModal";
 import type { Client } from "../types/client";
 
 function ClientList() {
@@ -7,6 +8,7 @@ function ClientList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [editingClient, setEditingClient] = useState<Client | null>(null);
 
   useEffect(() => {
     getClients()
@@ -58,6 +60,13 @@ function ClientList() {
                 <td>{client.isActive ? "Yes" : "No"}</td>
                 <td>
                   <button
+                    className="btn btn-secondary btn-sm"
+                    onClick={() => setEditingClient(client)}
+                    style={{ marginRight: "0.4rem" }}
+                  >
+                    Edit
+                  </button>
+                  <button
                     className="btn btn-danger btn-sm"
                     onClick={() => handleDelete(client.id, client.name)}
                   >
@@ -68,6 +77,16 @@ function ClientList() {
             ))}
           </tbody>
         </table>
+      )}
+
+      {editingClient && (
+        <ClientEditModal
+          client={editingClient}
+          onClose={() => setEditingClient(null)}
+          onUpdated={(updated) => {
+            setClients((prev) => prev.map((c) => (c.id === updated.id ? updated : c)));
+          }}
+        />
       )}
     </div>
   );

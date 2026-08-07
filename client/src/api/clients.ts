@@ -1,6 +1,5 @@
 import type { Client } from "../types/client";
-
-const API_BASE = "http://localhost:3001/api";
+import { API_BASE } from "./config";
 
 export async function getClients(): Promise<Client[]> {
   const res = await fetch(`${API_BASE}/clients`);
@@ -39,6 +38,31 @@ export async function getClientQuota(clientId: number, month: number, year: numb
 
   if (!res.ok) {
     throw new Error(`Failed to fetch quota: ${res.status}`);
+  }
+
+  return res.json();
+}
+
+export async function updateClient(
+  id: number,
+  data: {
+    name?: string;
+    contractStart?: string;
+    contractEnd?: string;
+    driveFolder?: string;
+    notes?: string;
+    isActive?: boolean;
+  }
+): Promise<Client> {
+  const res = await fetch(`${API_BASE}/clients/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(body?.error || `Failed to update client: ${res.status}`);
   }
 
   return res.json();

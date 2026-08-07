@@ -1,6 +1,5 @@
 import type { Task, ContentType, TaskStatus, Priority } from "../types/task";
-
-const API_BASE = "http://localhost:3001/api";
+import { API_BASE } from "./config";
 
 export async function getTasks(): Promise<Task[]> {
   const res = await fetch(`${API_BASE}/tasks`);

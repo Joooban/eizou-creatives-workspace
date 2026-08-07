@@ -10,7 +10,8 @@ import tasksRouter from "./routes/tasks";
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-app.use(cors());
+const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN;
+app.use(cors(CLIENT_ORIGIN ? { origin: CLIENT_ORIGIN } : undefined));
 app.use(express.json());
 
 app.get("/api/health", (req, res) => {

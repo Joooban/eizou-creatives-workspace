@@ -5,6 +5,7 @@ export interface QuotaCategory {
 
 export interface ClientQuota {
   clientId: number;
+  planId: number;
   month: number;
   year: number;
   graphics: QuotaCategory;

@@ -21,6 +21,8 @@ function TaskForm({ onCreated }: TaskFormProps) {
   const [platforms, setPlatforms] = useState<string[]>([]);
   const [priority, setPriority] = useState<Priority>("MEDIUM");
   const [deadline, setDeadline] = useState("");
+  const [workingFileLink, setWorkingFileLink] = useState("");
+  const [driveLink, setDriveLink] = useState("");
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -56,6 +58,8 @@ function TaskForm({ onCreated }: TaskFormProps) {
         platforms: platforms.join(","),
         priority,
         deadline: deadline || undefined,
+        workingFileLink: workingFileLink || undefined,
+        driveLink: driveLink || undefined,
       });
       setTitle("");
       setClientId("");
@@ -64,6 +68,8 @@ function TaskForm({ onCreated }: TaskFormProps) {
       setPlatforms([]);
       setPriority("MEDIUM");
       setDeadline("");
+      setWorkingFileLink("");
+      setDriveLink("");
       onCreated();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
@@ -137,6 +143,28 @@ function TaskForm({ onCreated }: TaskFormProps) {
               onChange={(e) => setDeadline(e.target.value)}
             />
           </div>
+        </div>
+
+        <div className="field">
+          <label htmlFor="workingFileLink">Raw Footage Link</label>
+          <input
+            id="workingFileLink"
+            type="url"
+            placeholder="https://drive.google.com/..."
+            value={workingFileLink}
+            onChange={(e) => setWorkingFileLink(e.target.value)}
+          />
+        </div>
+
+        <div className="field">
+          <label htmlFor="driveLink">Output Folder Link</label>
+          <input
+            id="driveLink"
+            type="url"
+            placeholder="https://drive.google.com/..."
+            value={driveLink}
+            onChange={(e) => setDriveLink(e.target.value)}
+          />
         </div>
 
         <div className="field" style={{ marginBottom: "1rem" }}>

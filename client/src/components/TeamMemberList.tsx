@@ -29,37 +29,44 @@ function TeamMemberList() {
     }
   }
 
-  if (loading) return <p>Loading team members...</p>;
-  if (error) return <p style={{ color: "red" }}>Error: {error}</p>;
-  if (members.length === 0) return <p>No team members yet.</p>;
+  if (loading) return <p className="empty-state">Loading team members...</p>;
+  if (error) return <p className="error-text">Error: {error}</p>;
 
   return (
-    <div>
-      {deleteError && <p style={{ color: "red" }}>{deleteError}</p>}
-      <table border={1} cellPadding={8}>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Role</th>
-            <th>Active</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {members.map((member) => (
-            <tr key={member.id}>
-              <td>{member.name}</td>
-              <td>{member.role}</td>
-              <td>{member.isActive ? "Yes" : "No"}</td>
-              <td>
-                <button onClick={() => handleDelete(member.id, member.name)}>
-                  Delete
-                </button>
-              </td>
+    <div className="card">
+      {deleteError && <p className="error-text">{deleteError}</p>}
+
+      {members.length === 0 ? (
+        <p className="empty-state">No team members yet.</p>
+      ) : (
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Role</th>
+              <th>Active</th>
+              <th></th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {members.map((member) => (
+              <tr key={member.id}>
+                <td>{member.name}</td>
+                <td>{member.role}</td>
+                <td>{member.isActive ? "Yes" : "No"}</td>
+                <td>
+                  <button
+                    className="btn btn-danger btn-sm"
+                    onClick={() => handleDelete(member.id, member.name)}
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 }

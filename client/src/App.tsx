@@ -67,6 +67,7 @@ function App() {
         <h1 className="wordmark">
           EIZOU <span className="wordmark-accent">Creatives</span>
         </h1>
+        <p className="tagline">Production tracker for content, clients, and delivery.</p>
         <nav className="filmstrip-tabs">
           {TABS.map((tab) => (
             <button
@@ -83,7 +84,10 @@ function App() {
       <main className="content">
         {activeTab === "dashboard" && (
           <section>
-            <h2 className="section-title">Quota Dashboard</h2>
+            <div className="page-header">
+              <h2 className="page-title">Quota Dashboard</h2>
+              <p className="page-subtitle">Monthly deliverable progress across every client.</p>
+            </div>
             <div className="quota-grid">
               {clients.map((client) => (
                 <QuotaView
@@ -100,6 +104,10 @@ function App() {
 
         {activeTab === "tasks" && (
           <section>
+            <div className="page-header">
+              <h2 className="page-title">Tasks</h2>
+              <p className="page-subtitle">Production status, assignments, and links for every deliverable.</p>
+            </div>
             <TaskForm onCreated={loadTasks} />
             <div className="card">
               <h2 className="section-title">Tasks</h2>
@@ -116,8 +124,11 @@ function App() {
 
         {activeTab === "calendar" && (
           <section>
+            <div className="page-header">
+              <h2 className="page-title">Task Calendar</h2>
+              <p className="page-subtitle">Deadlines across the month at a glance.</p>
+            </div>
             <div className="card">
-              <h2 className="section-title">Task Calendar</h2>
               <TaskCalendar tasks={tasks} />
             </div>
           </section>
@@ -125,6 +136,10 @@ function App() {
 
         {activeTab === "clients" && (
           <section>
+            <div className="page-header">
+              <h2 className="page-title">Clients</h2>
+              <p className="page-subtitle">Manage client contracts and accounts.</p>
+            </div>
             <ClientForm onCreated={() => setClientRefreshKey((k) => k + 1)} />
             <ClientList key={clientRefreshKey} />
           </section>
@@ -132,14 +147,12 @@ function App() {
 
         {activeTab === "team" && (
           <section>
-            <div className="card">
-              <h2 className="section-title">Add Team Member</h2>
-              <TeamMemberForm onCreated={() => setTeamMemberRefreshKey((k) => k + 1)} />
+            <div className="page-header">
+              <h2 className="page-title">Team</h2>
+              <p className="page-subtitle">Manage team members and roles.</p>
             </div>
-            <div className="card">
-              <h2 className="section-title">Team Members</h2>
-              <TeamMemberList key={teamMemberRefreshKey} />
-            </div>
+            <TeamMemberForm onCreated={() => setTeamMemberRefreshKey((k) => k + 1)} />
+            <TeamMemberList key={teamMemberRefreshKey} />
           </section>
         )}
       </main>
