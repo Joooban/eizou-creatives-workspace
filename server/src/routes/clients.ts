@@ -125,12 +125,71 @@ router.get("/:id/quota", async (req, res) => {
 
   res.json({
     clientId,
+    planId: plan.id,
     month,
     year,
     graphics: { completed: completed.GRAPHIC, quota: plan.graphicsQuota },
     photo: { completed: completed.PHOTO, quota: plan.photoQuota },
     reels: { completed: completed.REEL, quota: plan.reelsQuota },
   });
+});
+
+// POST /api/clients/:id/deliverable-plans - create or update the plan for a period
+router.post("/:id/deliverable-plans", async (req, res) => {
+  const clientId = Number(req.params.id);
+  const { periodMonth, periodYear, graphicsQuota, photoQuota, reelsQuota } = req.body;
+
+  if (
+    !periodMonth ||
+    !periodYear ||
+    graphicsQuota === undefined ||
+    photoQuota === undefined ||
+    reelsQuota === undefined
+  ) {
+    return res.status(400).json({
+      error: "periodMonth, periodYear, graphicsQuota, photoQuota, and reelsQuota are required",
+    });
+  }
+
+  try {
+    const plan = await prisma.deliverablePlan.upsert({
+      where: {
+        clientId_periodMonth_periodYear: {
+          clientId,
+          periodMonth: Number(periodMonth),
+          periodYear: Number(periodYear),
+        },
+      },
+      update: {
+        graphicsQuota: Number(graphicsQuota),
+        photoQuota: Number(photoQuota),
+        reelsQuota: Number(reelsQuota),
+      },
+      create: {
+        clientId,
+        periodMonth: Number(periodMonth),
+        periodYear: Number(periodYear),
+        graphicsQuota: Number(graphicsQuota),
+        photoQuota: Number(photoQuota),
+        reelsQuota: Number(reelsQuota),
+      },
+    });
+    res.status(201).json(plan);
+  } catch (err) {
+    res.status(400).json({ error: "Failed to save deliverable plan. Check that the client exists." });
+  }
+});
+
+// DELETE /api/clients/:id/deliverable-plans/:planId - clear a plan
+router.delete("/:id/deliverable-plans/:planId", async (req, res) => {
+  const planId = Number(req.params.planId);
+
+  try {
+    await prisma.deliverablePlan.delete({ where: { id: planId } });
+    res.status(204).send();
+  } catch (err) {
+    res.status(404).json({ error: `Deliverable plan with id ${planId} not found` });
+  }
 });
 
 export default router;
