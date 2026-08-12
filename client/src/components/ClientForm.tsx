@@ -9,6 +9,7 @@ function ClientForm({ onCreated }: ClientFormProps) {
   const [name, setName] = useState("");
   const [contractStart, setContractStart] = useState("");
   const [contractEnd, setContractEnd] = useState("");
+  const [color, setColor] = useState("#8B8B90");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -18,10 +19,11 @@ function ClientForm({ onCreated }: ClientFormProps) {
     setError(null);
 
     try {
-      await createClient({ name, contractStart, contractEnd });
+      await createClient({ name, contractStart, contractEnd, color });
       setName("");
       setContractStart("");
       setContractEnd("");
+      setColor("#8B8B90");
       onCreated();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
@@ -63,6 +65,16 @@ function ClientForm({ onCreated }: ClientFormProps) {
               value={contractEnd}
               onChange={(e) => setContractEnd(e.target.value)}
               required
+            />
+          </div>
+          <div className="field">
+            <label htmlFor="color">Calendar Color</label>
+            <input
+              id="color"
+              type="color"
+              value={color}
+              onChange={(e) => setColor(e.target.value)}
+              className="color-input"
             />
           </div>
         </div>

@@ -36,6 +36,7 @@ model Client {
   contractEnd    DateTime
   driveFolder    String?
   notes          String?
+  color          String           @default("#8B8B90")
   isActive       Boolean          @default(true)
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
@@ -67,6 +68,16 @@ model TaskPublishedLink {
   url      String
 
   @@unique([taskId, platform])
+}
+
+model TaskRevision {
+  id        Int      @id @default(autoincrement())
+  taskId    Int
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  version   Int
+  notes     String?
+  fileLink  String?
+  createdAt DateTime @default(now())
 }
 
 model TeamMember {
@@ -102,4 +113,5 @@ model Task {
   createdAt          DateTime    @default(now())
   updatedAt          DateTime    @updatedAt
   publishedLinks TaskPublishedLink[]
+  revisions      TaskRevision[]
 }

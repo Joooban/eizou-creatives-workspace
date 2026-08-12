@@ -15,6 +15,7 @@ function ClientEditModal({ client, onClose, onUpdated }: ClientEditModalProps) {
   const [contractEnd, setContractEnd] = useState(client.contractEnd.slice(0, 10));
   const [driveFolder, setDriveFolder] = useState(client.driveFolder ?? "");
   const [notes, setNotes] = useState(client.notes ?? "");
+  const [color, setColor] = useState(client.color);
   const [isActive, setIsActive] = useState(client.isActive);
 
   const [saving, setSaving] = useState(false);
@@ -32,6 +33,7 @@ function ClientEditModal({ client, onClose, onUpdated }: ClientEditModalProps) {
         contractEnd,
         driveFolder: driveFolder || undefined,
         notes: notes || undefined,
+        color,
         isActive,
       });
       onUpdated(updated);
@@ -86,6 +88,17 @@ function ClientEditModal({ client, onClose, onUpdated }: ClientEditModalProps) {
         <div className="field">
           <label htmlFor="edit-notes">Notes</label>
           <textarea id="edit-notes" rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} />
+        </div>
+
+        <div className="field" style={{ marginBottom: "1rem" }}>
+          <label htmlFor="edit-color">Calendar Color</label>
+          <input
+            id="edit-color"
+            type="color"
+            value={color}
+            onChange={(e) => setColor(e.target.value)}
+            className="color-input"
+          />
         </div>
 
         <div className="checkbox-row" style={{ marginBottom: "1rem" }}>

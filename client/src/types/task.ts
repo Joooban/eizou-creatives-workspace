@@ -16,11 +16,20 @@ export type PublishedLink = {
   url: string;
 };
 
+export type Revision = {
+  id: number;
+  taskId: number;
+  version: number;
+  notes: string | null;
+  fileLink: string | null;
+  createdAt: string;
+};
+
 export type Task = {
   id: number;
   title: string;
   clientId: number;
-  client: { id: number; name: string };
+  client: { id: number; name: string; color: string };
   assignedToId: number | null;
   assignedTo: { id: number; name: string } | null;
   contentType: ContentType;
@@ -38,6 +47,7 @@ export type Task = {
   driveLink: string | null;
   publishedPostLink: string | null;
   publishedLinks: PublishedLink[];
+  revisions: Revision[];
   createdAt: string;
   updatedAt: string;
 };

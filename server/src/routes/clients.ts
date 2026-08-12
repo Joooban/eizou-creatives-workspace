@@ -11,7 +11,7 @@ router.get("/", async (req, res) => {
 
 // POST /api/clients - create a new client
 router.post("/", async (req, res) => {
-  const { name, contractStart, contractEnd, driveFolder, notes } = req.body;
+  const { name, contractStart, contractEnd, driveFolder, notes, color } = req.body;
 
   if (!name || !contractStart || !contractEnd) {
     return res.status(400).json({
@@ -26,6 +26,7 @@ router.post("/", async (req, res) => {
       contractEnd: new Date(contractEnd),
       driveFolder,
       notes,
+      color: color || undefined,
     },
   });
 
@@ -35,7 +36,7 @@ router.post("/", async (req, res) => {
 // PUT /api/clients/:id - update an existing client
 router.put("/:id", async (req, res) => {
   const id = Number(req.params.id);
-  const { name, contractStart, contractEnd, driveFolder, notes, isActive } = req.body;
+  const { name, contractStart, contractEnd, driveFolder, notes, color, isActive } = req.body;
 
   try {
     const client = await prisma.client.update({
@@ -46,6 +47,7 @@ router.put("/:id", async (req, res) => {
         contractEnd: contractEnd ? new Date(contractEnd) : undefined,
         driveFolder,
         notes,
+        color,
         isActive,
       },
     });

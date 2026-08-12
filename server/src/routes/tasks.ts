@@ -11,6 +11,7 @@ router.get("/", async (req, res) => {
       client: true,
       assignedTo: true,
       publishedLinks: true,
+      revisions: { orderBy: { version: "desc" } },
     },
     orderBy: { createdAt: "desc" },
   });
@@ -82,6 +83,7 @@ router.post("/", async (req, res) => {
         client: true,
         assignedTo: true,
         publishedLinks: true,
+        revisions: true,
       },
     });
     res.status(201).json(task);
@@ -159,12 +161,58 @@ router.put("/:id", async (req, res) => {
 
     const fullTask = await prisma.task.findUnique({
       where: { id },
-      include: { client: true, assignedTo: true, publishedLinks: true },
+      include: {
+        client: true,
+        assignedTo: true,
+        publishedLinks: true,
+        revisions: { orderBy: { version: "desc" } },
+      },
     });
 
     res.json(fullTask);
   } catch (err) {
     res.status(404).json({ error: `Task with id ${id} not found` });
+  }
+});
+
+// POST /api/tasks/:id/revisions - log a new iteration while a task is in internal review
+router.post("/:id/revisions", async (req, res) => {
+  const taskId = Number(req.params.id);
+  const { notes, fileLink } = req.body;
+
+  if (!notes && !fileLink) {
+    return res.status(400).json({ error: "notes or fileLink is required" });
+  }
+
+  try {
+    const lastRevision = await prisma.taskRevision.findFirst({
+      where: { taskId },
+      orderBy: { version: "desc" },
+    });
+
+    const revision = await prisma.taskRevision.create({
+      data: {
+        taskId,
+        version: (lastRevision?.version ?? 0) + 1,
+        notes: notes || undefined,
+        fileLink: fileLink || undefined,
+      },
+    });
+    res.status(201).json(revision);
+  } catch (err) {
+    res.status(400).json({ error: "Failed to add revision. Check that the task exists." });
+  }
+});
+
+// DELETE /api/tasks/:id/revisions/:revisionId
+router.delete("/:id/revisions/:revisionId", async (req, res) => {
+  const revisionId = Number(req.params.revisionId);
+
+  try {
+    await prisma.taskRevision.delete({ where: { id: revisionId } });
+    res.status(204).send();
+  } catch (err) {
+    res.status(404).json({ error: `Revision with id ${revisionId} not found` });
   }
 });
 

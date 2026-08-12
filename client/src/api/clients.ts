@@ -17,6 +17,7 @@ export async function createClient(data: {
   contractEnd: string;
   driveFolder?: string;
   notes?: string;
+  color?: string;
 }): Promise<Client> {
   const res = await fetch(`${API_BASE}/clients`, {
     method: "POST",
@@ -51,6 +52,7 @@ export async function updateClient(
     contractEnd?: string;
     driveFolder?: string;
     notes?: string;
+    color?: string;
     isActive?: boolean;
   }
 ): Promise<Client> {

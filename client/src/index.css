@@ -381,14 +381,100 @@ input:focus, select:focus {
   text-transform: uppercase;
 }
 .rbc-event {
-  background: var(--paper) !important;
-  color: var(--ink) !important;
   border-radius: 4px;
   border: none !important;
   font-size: 0.75rem;
 }
 .rbc-agenda-table { color: var(--paper); }
 .rbc-agenda-view table.rbc-agenda-table tbody > tr > td { border-color: var(--line) !important; }
+
+.calendar-toolbar { display: flex; margin-bottom: 0.75rem; }
+
+.client-filter-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.client-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel-alt);
+  color: var(--paper);
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.client-chip.inactive { opacity: 0.4; }
+
+.client-chip-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.color-input {
+  padding: 0.2rem;
+  width: 3.5rem;
+  height: 2.1rem;
+  cursor: pointer;
+}
+
+.color-swatch {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1px solid var(--line);
+}
+
+.detail-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; border-bottom: 1px solid var(--line); }
+
+.detail-tab {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  padding: 0.6rem 0.2rem;
+  color: var(--muted);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+}
+
+.detail-tab:hover { color: var(--paper); }
+.detail-tab.active { color: var(--paper); border-bottom-color: var(--accent); }
+
+.revision-list { list-style: none; margin: 0 0 1.25rem; padding: 0; display: flex; flex-direction: column; gap: 0.75rem; }
+
+.revision-item {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.7rem 0.9rem;
+  background: var(--panel-alt);
+}
+
+.revision-item-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.4rem; }
+
+.revision-version {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--paper);
+}
+
+.revision-delete { margin-left: auto; color: var(--muted); font-size: 0.75rem; }
+
+.revision-notes { margin: 0 0 0.4rem; font-size: 0.88rem; }
+
+.revision-form { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.25rem; }
 
 .publish-prompt {
   display: flex;
@@ -408,7 +494,7 @@ input:focus, select:focus {
 }
 
 .rbc-event-link {
-  color: var(--ink);
+  color: inherit;
   text-decoration: underline;
   text-decoration-style: dotted;
 }

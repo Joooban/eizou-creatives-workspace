@@ -45,6 +45,7 @@ function ClientList() {
           <thead>
             <tr>
               <th>Name</th>
+              <th>Color</th>
               <th>Contract Start</th>
               <th>Contract End</th>
               <th>Active</th>
@@ -55,6 +56,9 @@ function ClientList() {
             {clients.map((client) => (
               <tr key={client.id}>
                 <td>{client.name}</td>
+                <td>
+                  <span className="color-swatch" style={{ backgroundColor: client.color }} />
+                </td>
                 <td className="mono">{new Date(client.contractStart).toLocaleDateString()}</td>
                 <td className="mono">{new Date(client.contractEnd).toLocaleDateString()}</td>
                 <td>{client.isActive ? "Yes" : "No"}</td>

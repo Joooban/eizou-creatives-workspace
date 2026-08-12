@@ -1,4 +1,4 @@
-import type { Task, ContentType, TaskStatus, Priority } from "../types/task";
+import type { Task, ContentType, TaskStatus, Priority, Revision } from "../types/task";
 import { API_BASE } from "./config";
 
 export async function getTasks(): Promise<Task[]> {
@@ -62,5 +62,31 @@ export async function deleteTask(id: number): Promise<void> {
   if (!res.ok) {
     const body = await res.json().catch(() => null);
     throw new Error(body?.error || `Failed to delete task: ${res.status}`);
+  }
+}
+
+export async function addTaskRevision(
+  taskId: number,
+  data: { notes?: string; fileLink?: string }
+): Promise<Revision> {
+  const res = await fetch(`${API_BASE}/tasks/${taskId}/revisions`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(body?.error || `Failed to add revision: ${res.status}`);
+  }
+  return res.json();
+}
+
+export async function deleteTaskRevision(taskId: number, revisionId: number): Promise<void> {
+  const res = await fetch(`${API_BASE}/tasks/${taskId}/revisions/${revisionId}`, {
+    method: "DELETE",
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(body?.error || `Failed to delete revision: ${res.status}`);
   }
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Modal from "./Modal";
-import { updateTask } from "../api/tasks";
+import { updateTask, addTaskRevision, deleteTaskRevision } from "../api/tasks";
 import { getClients } from "../api/clients";
 import { getTeamMembers } from "../api/teamMembers";
 import type { Client } from "../types/client";
@@ -72,10 +72,54 @@ function TaskDetail({ task, onClose, onUpdated }: TaskDetailProps) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [activeSection, setActiveSection] = useState<"details" | "revisions">("details");
+  const [revisionNotes, setRevisionNotes] = useState("");
+  const [revisionFileLink, setRevisionFileLink] = useState("");
+  const [addingRevision, setAddingRevision] = useState(false);
+  const [revisionError, setRevisionError] = useState<string | null>(null);
+
   useEffect(() => {
     getClients().then(setClients).catch(() => {});
     getTeamMembers().then(setMembers).catch(() => {});
   }, []);
+
+  const canAddRevision = task.status === "INTERNAL_REVIEW";
+
+  async function handleAddRevision(e: React.FormEvent) {
+    e.preventDefault();
+    if (!revisionNotes.trim() && !revisionFileLink.trim()) {
+      setRevisionError("Add a note or a file link");
+      return;
+    }
+
+    setAddingRevision(true);
+    setRevisionError(null);
+
+    try {
+      const revision = await addTaskRevision(task.id, {
+        notes: revisionNotes.trim() || undefined,
+        fileLink: revisionFileLink.trim() || undefined,
+      });
+      onUpdated({ ...task, revisions: [revision, ...task.revisions] });
+      setRevisionNotes("");
+      setRevisionFileLink("");
+    } catch (err) {
+      setRevisionError(err instanceof Error ? err.message : "Failed to add revision");
+    } finally {
+      setAddingRevision(false);
+    }
+  }
+
+  async function handleDeleteRevision(revisionId: number) {
+    if (!confirm("Delete this revision? This cannot be undone.")) return;
+
+    try {
+      await deleteTaskRevision(task.id, revisionId);
+      onUpdated({ ...task, revisions: task.revisions.filter((r) => r.id !== revisionId) });
+    } catch (err) {
+      setRevisionError(err instanceof Error ? err.message : "Failed to delete revision");
+    }
+  }
 
   function startEdit() {
     setForm(formToState(task));
@@ -293,6 +337,94 @@ function TaskDetail({ task, onClose, onUpdated }: TaskDetailProps) {
         </form>
       ) : (
         <>
+          <div className="detail-tabs">
+            <button
+              type="button"
+              className={`detail-tab ${activeSection === "details" ? "active" : ""}`}
+              onClick={() => setActiveSection("details")}
+            >
+              Details
+            </button>
+            <button
+              type="button"
+              className={`detail-tab ${activeSection === "revisions" ? "active" : ""}`}
+              onClick={() => setActiveSection("revisions")}
+            >
+              Revisions {task.revisions.length > 0 ? `(${task.revisions.length})` : ""}
+            </button>
+          </div>
+
+          {activeSection === "revisions" ? (
+            <>
+              <p className="page-subtitle" style={{ marginBottom: "1rem" }}>
+                {canAddRevision
+                  ? "Log each iteration here before moving this task to Published."
+                  : "Revisions can only be added while this task is in Internal Review."}
+              </p>
+
+              {task.revisions.length === 0 ? (
+                <p className="empty-state">No revisions logged yet.</p>
+              ) : (
+                <ul className="revision-list">
+                  {task.revisions.map((revision) => (
+                    <li key={revision.id} className="revision-item">
+                      <div className="revision-item-header">
+                        <span className="revision-version">v{revision.version}</span>
+                        <span className="mono">{new Date(revision.createdAt).toLocaleString()}</span>
+                        <button
+                          type="button"
+                          className="link-button revision-delete"
+                          onClick={() => handleDeleteRevision(revision.id)}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                      {revision.notes && <p className="revision-notes">{revision.notes}</p>}
+                      {revision.fileLink && (
+                        <a href={revision.fileLink} target="_blank" rel="noopener noreferrer">
+                          View file
+                        </a>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              {canAddRevision && (
+                <form onSubmit={handleAddRevision} className="revision-form">
+                  <div className="field">
+                    <label htmlFor="revision-notes">Notes</label>
+                    <textarea
+                      id="revision-notes"
+                      rows={2}
+                      value={revisionNotes}
+                      onChange={(e) => setRevisionNotes(e.target.value)}
+                      placeholder="What changed in this iteration?"
+                    />
+                  </div>
+                  <div className="field">
+                    <label htmlFor="revision-fileLink">File Link</label>
+                    <input
+                      id="revision-fileLink"
+                      type="url"
+                      value={revisionFileLink}
+                      onChange={(e) => setRevisionFileLink(e.target.value)}
+                      placeholder="https://..."
+                    />
+                  </div>
+                  {revisionError && <p className="error-text">{revisionError}</p>}
+                  <button type="submit" className="btn btn-primary btn-sm" disabled={addingRevision}>
+                    {addingRevision ? "Adding..." : "Add Revision"}
+                  </button>
+                </form>
+              )}
+
+              <div className="modal-footer">
+                <button className="btn btn-sm" onClick={onClose}>Close</button>
+              </div>
+            </>
+          ) : (
+          <>
           <div className="detail-grid">
             <DetailItem label="Client">{clientName}</DetailItem>
             <DetailItem label="Assigned To">{task.assignedTo?.name ?? "Unassigned"}</DetailItem>
@@ -368,6 +500,8 @@ function TaskDetail({ task, onClose, onUpdated }: TaskDetailProps) {
             <button className="btn btn-sm" onClick={onClose}>Close</button>
             <button className="btn btn-primary btn-sm" onClick={startEdit}>Edit</button>
           </div>
+          </>
+          )}
         </>
       )}
     </Modal>
