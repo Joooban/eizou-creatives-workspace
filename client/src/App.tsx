@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ClientList from "./components/ClientList";
 import ClientForm from "./components/ClientForm";
 import TaskList from "./components/TaskList";
@@ -12,11 +12,12 @@ import type { Task } from "./types/task";
 import TeamMemberList from "./components/TeamMemberList";
 import TeamMemberForm from "./components/TeamMemberForm";
 
-type Tab = "dashboard" | "tasks" | "calendar" | "clients" | "team";
+type Tab = "dashboard" | "tasks" | "done" | "calendar" | "clients" | "team";
 
 const TABS: { id: Tab; label: string }[] = [
   { id: "dashboard", label: "Dashboard" },
   { id: "tasks", label: "Tasks" },
+  { id: "done", label: "Done" },
   { id: "calendar", label: "Calendar" },
   { id: "clients", label: "Clients" },
   { id: "team", label: "Team" },
@@ -56,6 +57,18 @@ function App() {
   function handleTaskDeleted(id: number) {
     setTasks((prev) => prev.filter((t) => t.id !== id));
   }
+
+  const activeTasks = useMemo(() => tasks.filter((t) => t.status !== "PUBLISHED"), [tasks]);
+
+  const doneTasks = useMemo(() => {
+    return tasks
+      .filter((t) => t.status === "PUBLISHED")
+      .sort((a, b) => {
+        const aDate = a.actualPublishDate ?? a.updatedAt;
+        const bDate = b.actualPublishDate ?? b.updatedAt;
+        return new Date(bDate).getTime() - new Date(aDate).getTime();
+      });
+  }, [tasks]);
 
   const now = new Date();
   const currentMonth = now.getMonth() + 1;
@@ -112,7 +125,26 @@ function App() {
             <div className="card">
               <h2 className="section-title">Tasks</h2>
               <TaskList
-                tasks={tasks}
+                tasks={activeTasks}
+                loading={tasksLoading}
+                error={tasksError}
+                onTaskUpdated={handleTaskUpdated}
+                onTaskDeleted={handleTaskDeleted}
+              />
+            </div>
+          </section>
+        )}
+
+        {activeTab === "done" && (
+          <section>
+            <div className="page-header">
+              <h2 className="page-title">Done</h2>
+              <p className="page-subtitle">History of every published deliverable, most recent first.</p>
+            </div>
+            <div className="card">
+              <h2 className="section-title">Done</h2>
+              <TaskList
+                tasks={doneTasks}
                 loading={tasksLoading}
                 error={tasksError}
                 onTaskUpdated={handleTaskUpdated}
