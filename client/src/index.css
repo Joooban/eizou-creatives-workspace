@@ -417,6 +417,91 @@ input:focus, select:focus {
   color: var(--muted);
 }
 
+.deadline-watch-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.deadline-watch-subtitle {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 0.6rem;
+}
+
+.deadline-watch-subtitle.overdue { color: var(--accent); }
+
+.deadline-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.deadline-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.6rem;
+  background: var(--panel-alt);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.deadline-row-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.deadline-row-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.deadline-row-title {
+  font-size: 0.85rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.deadline-row-meta {
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.deadline-row-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.15rem;
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.deadline-row-date {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+}
+
+.deadline-row-relative {
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.deadline-row-relative.overdue { color: var(--accent); font-weight: 600; }
+
 /* react-big-calendar dark/mono override */
 .rbc-calendar { font-family: var(--font-body); }
 .rbc-off-range-bg { background: var(--panel-alt) !important; }
