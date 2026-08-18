@@ -5,6 +5,7 @@ import TaskList from "./components/TaskList";
 import TaskForm from "./components/TaskForm";
 import TaskCalendar from "./components/TaskCalendar";
 import { QuotaView } from "./components/QuotaView";
+import { EditorOutput } from "./components/EditorOutput";
 import { getClients } from "./api/clients";
 import { getTasks } from "./api/tasks";
 import type { Client } from "./types/client";
@@ -101,6 +102,7 @@ function App() {
               <h2 className="page-title">Quota Dashboard</h2>
               <p className="page-subtitle">Monthly deliverable progress across every client.</p>
             </div>
+            <EditorOutput tasks={tasks} month={currentMonth} year={currentYear} />
             <div className="quota-grid">
               {clients.map((client) => (
                 <QuotaView
