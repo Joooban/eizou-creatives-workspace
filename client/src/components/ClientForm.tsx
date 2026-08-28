@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { createClient } from "../api/clients";
+import type { Client } from "../types/client";
 
 type ClientFormProps = {
-  onCreated: () => void;
+  onCreated: (client: Client) => void;
 };
 
 function ClientForm({ onCreated }: ClientFormProps) {
@@ -19,12 +20,12 @@ function ClientForm({ onCreated }: ClientFormProps) {
     setError(null);
 
     try {
-      await createClient({ name, contractStart, contractEnd, color });
+      const client = await createClient({ name, contractStart, contractEnd, color });
       setName("");
       setContractStart("");
       setContractEnd("");
       setColor("#8B8B90");
-      onCreated();
+      onCreated(client);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {

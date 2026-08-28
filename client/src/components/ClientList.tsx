@@ -1,21 +1,19 @@
-import { useEffect, useState } from "react";
-import { getClients, deleteClient } from "../api/clients";
+import { useState } from "react";
+import { deleteClient } from "../api/clients";
 import ClientEditModal from "./ClientEditModal";
 import type { Client } from "../types/client";
 
-function ClientList() {
-  const [clients, setClients] = useState<Client[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+type ClientListProps = {
+  clients: Client[];
+  loading: boolean;
+  error: string | null;
+  onClientUpdated: (client: Client) => void;
+  onClientDeleted: (id: number) => void;
+};
+
+function ClientList({ clients, loading, error, onClientUpdated, onClientDeleted }: ClientListProps) {
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
-
-  useEffect(() => {
-    getClients()
-      .then((data) => setClients(data))
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
-  }, []);
 
   async function handleDelete(id: number, name: string) {
     if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
@@ -23,7 +21,7 @@ function ClientList() {
     setDeleteError(null);
     try {
       await deleteClient(id);
-      setClients((prev) => prev.filter((c) => c.id !== id));
+      onClientDeleted(id);
     } catch (err) {
       setDeleteError(
         `Could not delete "${name}" — it likely still has tasks or a deliverable plan attached. (${(err as Error).message})`
@@ -87,9 +85,7 @@ function ClientList() {
         <ClientEditModal
           client={editingClient}
           onClose={() => setEditingClient(null)}
-          onUpdated={(updated) => {
-            setClients((prev) => prev.map((c) => (c.id === updated.id ? updated : c)));
-          }}
+          onUpdated={onClientUpdated}
         />
       )}
     </div>

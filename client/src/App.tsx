@@ -1,9 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import ClientList from "./components/ClientList";
 import ClientForm from "./components/ClientForm";
 import TaskList from "./components/TaskList";
 import TaskForm from "./components/TaskForm";
-import TaskCalendar from "./components/TaskCalendar";
 import { QuotaView } from "./components/QuotaView";
 import { EditorOutput } from "./components/EditorOutput";
 import { DeadlineWatch } from "./components/DeadlineWatch";
@@ -13,6 +12,8 @@ import type { Client } from "./types/client";
 import type { Task } from "./types/task";
 import TeamMemberList from "./components/TeamMemberList";
 import TeamMemberForm from "./components/TeamMemberForm";
+
+const TaskCalendar = lazy(() => import("./components/TaskCalendar"));
 
 type Tab = "dashboard" | "tasks" | "done" | "calendar" | "clients" | "team";
 
@@ -28,8 +29,9 @@ const TABS: { id: Tab; label: string }[] = [
 function App() {
   const [activeTab, setActiveTab] = useState<Tab>("dashboard");
 
-  const [clientRefreshKey, setClientRefreshKey] = useState(0);
   const [clients, setClients] = useState<Client[]>([]);
+  const [clientsLoading, setClientsLoading] = useState(true);
+  const [clientsError, setClientsError] = useState<string | null>(null);
   const [teamMemberRefreshKey, setTeamMemberRefreshKey] = useState(0);
 
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -45,8 +47,11 @@ function App() {
   }
 
   useEffect(() => {
-    getClients().then(setClients).catch(console.error);
-  }, [clientRefreshKey]);
+    getClients()
+      .then(setClients)
+      .catch((err) => setClientsError(err.message))
+      .finally(() => setClientsLoading(false));
+  }, []);
 
   useEffect(() => {
     loadTasks();
@@ -58,6 +63,18 @@ function App() {
 
   function handleTaskDeleted(id: number) {
     setTasks((prev) => prev.filter((t) => t.id !== id));
+  }
+
+  function handleClientCreated(client: Client) {
+    setClients((prev) => [...prev, client]);
+  }
+
+  function handleClientUpdated(updated: Client) {
+    setClients((prev) => prev.map((c) => (c.id === updated.id ? updated : c)));
+  }
+
+  function handleClientDeleted(id: number) {
+    setClients((prev) => prev.filter((c) => c.id !== id));
   }
 
   const activeTasks = useMemo(() => tasks.filter((t) => t.status !== "PUBLISHED"), [tasks]);
@@ -165,7 +182,9 @@ function App() {
               <p className="page-subtitle">Deadlines across the month at a glance.</p>
             </div>
             <div className="card">
-              <TaskCalendar tasks={tasks} />
+              <Suspense fallback={<p className="empty-state">Loading calendar...</p>}>
+                <TaskCalendar tasks={tasks} />
+              </Suspense>
             </div>
           </section>
         )}
@@ -176,8 +195,14 @@ function App() {
               <h2 className="page-title">Clients</h2>
               <p className="page-subtitle">Manage client contracts and accounts.</p>
             </div>
-            <ClientForm onCreated={() => setClientRefreshKey((k) => k + 1)} />
-            <ClientList key={clientRefreshKey} />
+            <ClientForm onCreated={handleClientCreated} />
+            <ClientList
+              clients={clients}
+              loading={clientsLoading}
+              error={clientsError}
+              onClientUpdated={handleClientUpdated}
+              onClientDeleted={handleClientDeleted}
+            />
           </section>
         )}
 
