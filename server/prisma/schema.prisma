@@ -78,6 +78,8 @@ model TaskRevision {
   notes     String?
   fileLink  String?
   createdAt DateTime @default(now())
+
+  @@index([taskId])
 }
 
 model TeamMember {
@@ -114,4 +116,7 @@ model Task {
   updatedAt          DateTime    @updatedAt
   publishedLinks TaskPublishedLink[]
   revisions      TaskRevision[]
+
+  @@index([clientId])
+  @@index([assignedToId])
 }
