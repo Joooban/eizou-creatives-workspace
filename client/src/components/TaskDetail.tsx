@@ -13,6 +13,7 @@ type TaskDetailProps = {
   task: Task;
   onClose: () => void;
   onUpdated: (task: Task) => void;
+  startEditing?: boolean;
 };
 
 type FormState = {
@@ -65,11 +66,11 @@ function DetailItem({ label, children, full }: { label: string; children: React.
   );
 }
 
-function TaskDetail({ task, onClose, onUpdated }: TaskDetailProps) {
+function TaskDetail({ task, onClose, onUpdated, startEditing }: TaskDetailProps) {
   const [clients, setClients] = useState<Client[]>([]);
   const [members, setMembers] = useState<TeamMember[]>([]);
 
-  const [editing, setEditing] = useState(false);
+  const [editing, setEditing] = useState(startEditing ?? false);
   const [form, setForm] = useState<FormState>(() => formToState(task));
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);

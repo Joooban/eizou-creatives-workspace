@@ -183,7 +183,7 @@ function App() {
             </div>
             <div className="card">
               <Suspense fallback={<p className="empty-state">Loading calendar...</p>}>
-                <TaskCalendar tasks={tasks} />
+                <TaskCalendar tasks={tasks} onTaskUpdated={handleTaskUpdated} />
               </Suspense>
             </div>
           </section>

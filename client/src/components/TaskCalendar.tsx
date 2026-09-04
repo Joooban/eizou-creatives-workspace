@@ -3,6 +3,8 @@ import { Calendar, dateFnsLocalizer, type View } from "react-big-calendar";
 import { format, parse, startOfWeek, getDay } from "date-fns";
 import { enUS } from "date-fns/locale";
 import "react-big-calendar/lib/css/react-big-calendar.css";
+import EventPopover from "./EventPopover";
+import TaskDetail from "./TaskDetail";
 import type { Task } from "../types/task";
 
 const locales = { "en-US": enUS };
@@ -17,6 +19,7 @@ const localizer = dateFnsLocalizer({
 
 type TaskCalendarProps = {
   tasks: Task[];
+  onTaskUpdated: (task: Task) => void;
 };
 
 type CalendarEvent = {
@@ -69,11 +72,13 @@ function CalendarEventItem({ event }: { event: CalendarEvent }) {
   return <span>{event.title}</span>;
 }
 
-function TaskCalendar({ tasks }: TaskCalendarProps) {
+function TaskCalendar({ tasks, onTaskUpdated }: TaskCalendarProps) {
   const [view, setView] = useState<View>("month");
   const [date, setDate] = useState<Date>(new Date());
   const [showFilters, setShowFilters] = useState(false);
   const [hiddenClientIds, setHiddenClientIds] = useState<Set<number>>(new Set());
+  const [popover, setPopover] = useState<{ task: Task; x: number; y: number } | null>(null);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   const clientOptions: ClientOption[] = useMemo(() => {
     const map = new Map<number, ClientOption>();
@@ -82,6 +87,13 @@ function TaskCalendar({ tasks }: TaskCalendarProps) {
     });
     return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name));
   }, [tasks]);
+
+  function handleSelectEvent(event: CalendarEvent, e: React.SyntheticEvent<HTMLElement>) {
+    const mouseEvent = e as React.MouseEvent<HTMLElement>;
+    const x = mouseEvent.clientX || window.innerWidth / 2;
+    const y = mouseEvent.clientY || window.innerHeight / 2;
+    setPopover({ task: event.resource, x, y });
+  }
 
   function toggleClient(id: number) {
     setHiddenClientIds((prev) => {
@@ -148,6 +160,7 @@ function TaskCalendar({ tasks }: TaskCalendarProps) {
           onView={(newView) => setView(newView)}
           date={date}
           onNavigate={(newDate) => setDate(newDate)}
+          onSelectEvent={handleSelectEvent}
           components={{ event: CalendarEventItem }}
           eventPropGetter={(event) => {
             const color = (event as CalendarEvent).resource.client.color || "#8B8B90";
@@ -156,6 +169,31 @@ function TaskCalendar({ tasks }: TaskCalendarProps) {
           style={{ height: "100%" }}
         />
       </div>
+
+      {popover && (
+        <EventPopover
+          task={popover.task}
+          x={popover.x}
+          y={popover.y}
+          onClose={() => setPopover(null)}
+          onEdit={() => {
+            setEditingTask(popover.task);
+            setPopover(null);
+          }}
+        />
+      )}
+
+      {editingTask && (
+        <TaskDetail
+          task={editingTask}
+          startEditing
+          onClose={() => setEditingTask(null)}
+          onUpdated={(updated) => {
+            onTaskUpdated(updated);
+            setEditingTask(updated);
+          }}
+        />
+      )}
     </div>
   );
 }
