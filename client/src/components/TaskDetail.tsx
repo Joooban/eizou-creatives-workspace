@@ -29,6 +29,7 @@ type FormState = {
   driveLink: string;
   caption: string;
   instructions: string;
+  publishedLinks: Record<string, string>;
 };
 
 function toDateInputValue(iso: string | null): string {
@@ -51,6 +52,7 @@ function formToState(task: Task): FormState {
     driveLink: task.driveLink ?? "",
     caption: task.caption ?? "",
     instructions: task.instructions ?? "",
+    publishedLinks: Object.fromEntries(task.publishedLinks.map((link) => [link.platform, link.url])),
   };
 }
 
@@ -127,6 +129,10 @@ function TaskDetail({ task, onClose, onUpdated }: TaskDetailProps) {
     setEditing(true);
   }
 
+  function setPublishedLink(platform: string, url: string) {
+    setForm((f) => ({ ...f, publishedLinks: { ...f.publishedLinks, [platform]: url } }));
+  }
+
   function togglePlatform(platform: string) {
     setForm((f) => ({
       ...f,
@@ -162,6 +168,9 @@ function TaskDetail({ task, onClose, onUpdated }: TaskDetailProps) {
         driveLink: form.driveLink || undefined,
         caption: form.caption || undefined,
         instructions: form.instructions || undefined,
+        publishedLinks: Object.entries(form.publishedLinks)
+          .filter(([, url]) => url.trim())
+          .map(([platform, url]) => ({ platform, url: url.trim() })),
       });
       onUpdated(updated);
       setEditing(false);
@@ -323,6 +332,26 @@ function TaskDetail({ task, onClose, onUpdated }: TaskDetailProps) {
               ))}
             </div>
           </div>
+
+          {task.status === "PUBLISHED" && (
+            <div className="field" style={{ marginBottom: "1rem" }}>
+              <label>Published Links</label>
+              <div className="publish-prompt-group">
+                {form.platforms.map((platform) => (
+                  <div className="publish-prompt" key={platform}>
+                    <label htmlFor={`detail-publishedLink-${platform}`}>{platform} link</label>
+                    <input
+                      id={`detail-publishedLink-${platform}`}
+                      type="url"
+                      placeholder="https://..."
+                      value={form.publishedLinks[platform] ?? ""}
+                      onChange={(e) => setPublishedLink(platform, e.target.value)}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {error && <p className="error-text">{error}</p>}
 
