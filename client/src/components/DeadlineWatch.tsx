@@ -1,4 +1,5 @@
 import { formatDistanceToNow } from "date-fns";
+import { formatDateTime } from "../utils/dateTime";
 import type { Task } from "../types/task";
 
 const UPCOMING_WINDOW_DAYS = 14;
@@ -20,7 +21,7 @@ function DeadlineRow({ task, overdue }: { task: Task; overdue: boolean }) {
         </span>
       </div>
       <div className="deadline-row-right">
-        <span className="deadline-row-date">{deadline.toLocaleDateString()}</span>
+        <span className="deadline-row-date">{formatDateTime(task.deadline as string)}</span>
         <span className={`deadline-row-relative ${overdue ? "overdue" : ""}`}>
           {formatDistanceToNow(deadline, { addSuffix: true })}
         </span>

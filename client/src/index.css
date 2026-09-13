@@ -662,6 +662,11 @@ input:focus, select:focus {
 }
 .rbc-event-link:hover { text-decoration-style: solid; }
 
+.rbc-event-time {
+  font-family: var(--font-mono);
+  opacity: 0.85;
+}
+
 .publish-prompt-group {
   display: flex;
   flex-direction: column;

@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { updateTask, deleteTask } from "../api/tasks";
 import TaskDetail from "./TaskDetail";
+import { formatDateTime } from "../utils/dateTime";
 import type { Task, TaskStatus, ContentType, Priority } from "../types/task";
 
 const PRIORITY_LABELS: Record<Priority, string> = {
@@ -239,7 +240,7 @@ function TaskList({ tasks, loading, error: loadError, onTaskUpdated, onTaskDelet
                     </select>
                   </td>
                   <td className={`mono ${isOverdue(task) ? "overdue" : ""}`}>
-                    {task.deadline ? new Date(task.deadline).toLocaleDateString() : "—"}
+                    {task.deadline ? formatDateTime(task.deadline) : "—"}
                   </td>
                   <td>
                     {task.workingFileLink ? (

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { createTask } from "../api/tasks";
 import { getClients } from "../api/clients";
 import { getTeamMembers } from "../api/teamMembers";
+import { toIsoUtc } from "../utils/dateTime";
 import type { Client } from "../types/client";
 import type { TeamMember } from "../types/teamMember";
 import type { ContentType, Priority } from "../types/task";
@@ -57,7 +58,7 @@ function TaskForm({ onCreated }: TaskFormProps) {
         contentType,
         platforms: platforms.join(","),
         priority,
-        deadline: deadline || undefined,
+        deadline: deadline ? toIsoUtc(deadline) : undefined,
         workingFileLink: workingFileLink || undefined,
         driveLink: driveLink || undefined,
       });
@@ -138,7 +139,7 @@ function TaskForm({ onCreated }: TaskFormProps) {
             <label htmlFor="deadline">Deadline</label>
             <input
               id="deadline"
-              type="date"
+              type="datetime-local"
               value={deadline}
               onChange={(e) => setDeadline(e.target.value)}
             />

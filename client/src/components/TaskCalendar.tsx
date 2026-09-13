@@ -5,6 +5,7 @@ import { enUS } from "date-fns/locale";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import EventPopover from "./EventPopover";
 import TaskDetail from "./TaskDetail";
+import { toNaiveLocalDate } from "../utils/dateTime";
 import type { Task } from "../types/task";
 
 const locales = { "en-US": enUS };
@@ -48,11 +49,12 @@ function contrastText(hex: string): string {
 
 function CalendarEventItem({ event }: { event: CalendarEvent }) {
   const task = event.resource;
+  const time = format(event.start, "h:mm a");
 
   if (task.publishedLinks.length > 0) {
     return (
       <span>
-        {event.title}{" "}
+        <span className="rbc-event-time">{time}</span> {event.title}{" "}
           {task.publishedLinks.map((link) => (
             <a
             key={link.platform}
@@ -69,7 +71,11 @@ function CalendarEventItem({ event }: { event: CalendarEvent }) {
     );
   }
 
-  return <span>{event.title}</span>;
+  return (
+    <span>
+      <span className="rbc-event-time">{time}</span> {event.title}
+    </span>
+  );
 }
 
 function TaskCalendar({ tasks, onTaskUpdated }: TaskCalendarProps) {
@@ -107,12 +113,12 @@ function TaskCalendar({ tasks, onTaskUpdated }: TaskCalendarProps) {
   const events: CalendarEvent[] = tasks
     .filter((task) => task.deadline !== null && !hiddenClientIds.has(task.client.id))
     .map((task) => {
-      const deadline = new Date(task.deadline as string);
+      const deadline = toNaiveLocalDate(task.deadline as string);
       return {
         title: `${task.title} (${task.client.name})`,
         start: deadline,
-        end: deadline,
-        allDay: true,
+        end: new Date(deadline.getTime() + 30 * 60 * 1000),
+        allDay: false,
         resource: task,
       };
     });

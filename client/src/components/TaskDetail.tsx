@@ -3,6 +3,7 @@ import Modal from "./Modal";
 import { updateTask, addTaskRevision, deleteTaskRevision } from "../api/tasks";
 import { getClients } from "../api/clients";
 import { getTeamMembers } from "../api/teamMembers";
+import { toDateTimeInputValue, toIsoUtc, formatDateTime } from "../utils/dateTime";
 import type { Client } from "../types/client";
 import type { TeamMember } from "../types/teamMember";
 import type { ContentType, Priority, Task } from "../types/task";
@@ -33,11 +34,6 @@ type FormState = {
   publishedLinks: Record<string, string>;
 };
 
-function toDateInputValue(iso: string | null): string {
-  if (!iso) return "";
-  return iso.slice(0, 10);
-}
-
 function formToState(task: Task): FormState {
   return {
     title: task.title,
@@ -46,8 +42,8 @@ function formToState(task: Task): FormState {
     contentType: task.contentType,
     quantity: String(task.quantity),
     priority: task.priority,
-    deadline: toDateInputValue(task.deadline),
-    scheduledPublishDate: toDateInputValue(task.scheduledPublishDate),
+    deadline: toDateTimeInputValue(task.deadline),
+    scheduledPublishDate: toDateTimeInputValue(task.scheduledPublishDate),
     platforms: task.platforms ? task.platforms.split(",") : [],
     workingFileLink: task.workingFileLink ?? "",
     driveLink: task.driveLink ?? "",
@@ -162,8 +158,8 @@ function TaskDetail({ task, onClose, onUpdated, startEditing }: TaskDetailProps)
         contentType: form.contentType,
         quantity: Number(form.quantity) || 1,
         priority: form.priority,
-        deadline: form.deadline || undefined,
-        scheduledPublishDate: form.scheduledPublishDate || undefined,
+        deadline: form.deadline ? toIsoUtc(form.deadline) : undefined,
+        scheduledPublishDate: form.scheduledPublishDate ? toIsoUtc(form.scheduledPublishDate) : undefined,
         platforms: form.platforms.join(","),
         workingFileLink: form.workingFileLink || undefined,
         driveLink: form.driveLink || undefined,
@@ -262,7 +258,7 @@ function TaskDetail({ task, onClose, onUpdated, startEditing }: TaskDetailProps)
               <label htmlFor="detail-deadline">Deadline</label>
               <input
                 id="detail-deadline"
-                type="date"
+                type="datetime-local"
                 value={form.deadline}
                 onChange={(e) => setForm((f) => ({ ...f, deadline: e.target.value }))}
               />
@@ -271,7 +267,7 @@ function TaskDetail({ task, onClose, onUpdated, startEditing }: TaskDetailProps)
               <label htmlFor="detail-scheduledPublishDate">Scheduled Publish Date</label>
               <input
                 id="detail-scheduledPublishDate"
-                type="date"
+                type="datetime-local"
                 value={form.scheduledPublishDate}
                 onChange={(e) => setForm((f) => ({ ...f, scheduledPublishDate: e.target.value }))}
               />
@@ -474,18 +470,18 @@ function TaskDetail({ task, onClose, onUpdated, startEditing }: TaskDetailProps)
             <DetailItem label="Platforms">{task.platforms}</DetailItem>
             <DetailItem label="Review Round">{task.reviewRound}</DetailItem>
             <DetailItem label="Deadline">
-              {task.deadline ? new Date(task.deadline).toLocaleDateString() : <span className="empty">—</span>}
+              {task.deadline ? formatDateTime(task.deadline) : <span className="empty">—</span>}
             </DetailItem>
             <DetailItem label="Scheduled Publish">
               {task.scheduledPublishDate ? (
-                new Date(task.scheduledPublishDate).toLocaleDateString()
+                formatDateTime(task.scheduledPublishDate)
               ) : (
                 <span className="empty">—</span>
               )}
             </DetailItem>
             <DetailItem label="Actual Publish">
               {task.actualPublishDate ? (
-                new Date(task.actualPublishDate).toLocaleDateString()
+                formatDateTime(task.actualPublishDate)
               ) : (
                 <span className="empty">—</span>
               )}
