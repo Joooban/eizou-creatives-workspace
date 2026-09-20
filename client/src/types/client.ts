@@ -4,6 +4,7 @@ export type Client = {
   contractStart: string;
   contractEnd: string;
   driveFolder: string | null;
+  moodboardLink: string | null;
   notes: string | null;
   color: string;
   isActive: boolean;

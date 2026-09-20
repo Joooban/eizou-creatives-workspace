@@ -16,6 +16,7 @@ export async function createClient(data: {
   contractStart: string;
   contractEnd: string;
   driveFolder?: string;
+  moodboardLink?: string;
   notes?: string;
   color?: string;
 }): Promise<Client> {
@@ -51,6 +52,7 @@ export async function updateClient(
     contractStart?: string;
     contractEnd?: string;
     driveFolder?: string;
+    moodboardLink?: string | null;
     notes?: string;
     color?: string;
     isActive?: boolean;

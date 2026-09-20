@@ -126,10 +126,10 @@ function App() {
               {clients.map((client) => (
                 <QuotaView
                   key={client.id}
-                  clientId={client.id}
-                  clientName={client.name}
+                  client={client}
                   month={currentMonth}
                   year={currentYear}
+                  onClientUpdated={handleClientUpdated}
                 />
               ))}
             </div>

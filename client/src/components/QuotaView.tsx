@@ -1,19 +1,21 @@
 import { useEffect, useState } from "react";
-import { getClientQuota } from "../api/clients";
+import { getClientQuota, updateClient } from "../api/clients";
 import { upsertDeliverablePlan } from "../api/deliverablePlans";
+import type { Client } from "../types/client";
 import type { ClientQuota, QuotaCategory } from "../types/quota";
 
 interface QuotaViewProps {
-  clientId: number;
-  clientName: string;
+  client: Client;
   month: number;
   year: number;
+  onClientUpdated: (client: Client) => void;
 }
 
 type QuotaFormState = {
   graphicsQuota: string;
   photoQuota: string;
   reelsQuota: string;
+  moodboardLink: string;
 };
 
 function QuotaRow({ label, data }: { label: string; data: QuotaCategory }) {
@@ -35,12 +37,18 @@ function QuotaRow({ label, data }: { label: string; data: QuotaCategory }) {
   );
 }
 
-export function QuotaView({ clientId, clientName, month, year }: QuotaViewProps) {
+export function QuotaView({ client, month, year, onClientUpdated }: QuotaViewProps) {
+  const clientId = client.id;
   const [quota, setQuota] = useState<ClientQuota | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const [editing, setEditing] = useState(false);
-  const [form, setForm] = useState<QuotaFormState>({ graphicsQuota: "0", photoQuota: "0", reelsQuota: "0" });
+  const [form, setForm] = useState<QuotaFormState>({
+    graphicsQuota: "0",
+    photoQuota: "0",
+    reelsQuota: "0",
+    moodboardLink: "",
+  });
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
@@ -59,12 +67,14 @@ export function QuotaView({ clientId, clientName, month, year }: QuotaViewProps)
   }, [clientId, month, year]);
 
   const noPlan = error !== null && error.includes("404");
+  const loaded = quota !== null || error !== null;
 
   function startEdit() {
     setForm({
       graphicsQuota: String(quota?.graphics.quota ?? 0),
       photoQuota: String(quota?.photo.quota ?? 0),
       reelsQuota: String(quota?.reels.quota ?? 0),
+      moodboardLink: client.moodboardLink ?? "",
     });
     setSaveError(null);
     setEditing(true);
@@ -83,6 +93,10 @@ export function QuotaView({ clientId, clientName, month, year }: QuotaViewProps)
         photoQuota: Number(form.photoQuota) || 0,
         reelsQuota: Number(form.reelsQuota) || 0,
       });
+      const updatedClient = await updateClient(clientId, {
+        moodboardLink: form.moodboardLink.trim() || null,
+      });
+      onClientUpdated(updatedClient);
       loadQuota();
       setEditing(false);
     } catch (err) {
@@ -95,13 +109,26 @@ export function QuotaView({ clientId, clientName, month, year }: QuotaViewProps)
   return (
     <div className="card">
       <div className="quota-card-header">
-        <h3 className="quota-title" style={{ margin: 0 }}>{clientName}</h3>
-        {!editing && (
+        <h3 className="quota-title" style={{ margin: 0 }}>{client.name}</h3>
+        {!editing && loaded && (
           <button className="btn btn-secondary btn-sm" onClick={startEdit}>
             {noPlan ? "Set Quota" : "Edit"}
           </button>
         )}
       </div>
+
+      {!editing && (
+        <div className="quota-moodboard">
+          <span className="quota-moodboard-label">Moodboard</span>
+          {client.moodboardLink ? (
+            <a href={client.moodboardLink} target="_blank" rel="noopener noreferrer">
+              View board
+            </a>
+          ) : (
+            <span className="empty">Not set</span>
+          )}
+        </div>
+      )}
 
       {editing ? (
         <form onSubmit={handleSave}>
@@ -136,6 +163,16 @@ export function QuotaView({ clientId, clientName, month, year }: QuotaViewProps)
                 onChange={(e) => setForm((f) => ({ ...f, reelsQuota: e.target.value }))}
               />
             </div>
+          </div>
+          <div className="field" style={{ marginBottom: "1rem" }}>
+            <label htmlFor={`moodboard-${clientId}`}>Moodboard Link</label>
+            <input
+              id={`moodboard-${clientId}`}
+              type="url"
+              placeholder="https://..."
+              value={form.moodboardLink}
+              onChange={(e) => setForm((f) => ({ ...f, moodboardLink: e.target.value }))}
+            />
           </div>
           {saveError && <p className="error-text">{saveError}</p>}
           <div className="quota-edit-actions">

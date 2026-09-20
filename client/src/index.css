@@ -836,7 +836,7 @@ input:focus, select:focus {
 }
 
 .detail-item .detail-value { font-size: 0.9rem; }
-.detail-value .empty { color: var(--muted); font-style: italic; }
+.empty, .detail-value .empty { color: var(--muted); font-style: italic; }
 
 .detail-full { grid-column: 1 / -1; }
 
@@ -858,4 +858,18 @@ input:focus, select:focus {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 0.9rem;
+}
+
+.quota-moodboard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  margin-bottom: 0.9rem;
+  padding-bottom: 0.7rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.quota-moodboard-label {
+  color: var(--muted);
 }

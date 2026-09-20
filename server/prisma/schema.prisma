@@ -35,6 +35,7 @@ model Client {
   contractStart  DateTime
   contractEnd    DateTime
   driveFolder    String?
+  moodboardLink  String?
   notes          String?
   color          String           @default("#8B8B90")
   isActive       Boolean          @default(true)
