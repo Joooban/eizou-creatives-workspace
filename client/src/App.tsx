@@ -7,6 +7,7 @@ import { QuotaView } from "./components/QuotaView";
 import { EditorOutput } from "./components/EditorOutput";
 import { DeadlineWatch } from "./components/DeadlineWatch";
 import EizouMark from "./components/EizouMark";
+import ThemeIcon from "./components/ThemeIcon";
 import { getClients } from "./api/clients";
 import { getTasks } from "./api/tasks";
 import type { Client } from "./types/client";
@@ -133,11 +134,11 @@ function App() {
           </div>
           <button
             type="button"
-            className="btn btn-secondary btn-sm"
+            className="btn btn-secondary btn-sm theme-toggle"
             onClick={toggleTheme}
             aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
           >
-            {theme === "dark" ? "Light Mode" : "Dark Mode"}
+            <ThemeIcon mode={theme === "dark" ? "sun" : "moon"} />
           </button>
         </div>
         <p className="tagline">Production tracker for content, clients, and delivery.</p>
