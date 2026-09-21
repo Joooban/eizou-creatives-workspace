@@ -6,7 +6,6 @@ import TaskForm from "./components/TaskForm";
 import { QuotaView } from "./components/QuotaView";
 import { EditorOutput } from "./components/EditorOutput";
 import { DeadlineWatch } from "./components/DeadlineWatch";
-import EizouMark from "./components/EizouMark";
 import ThemeIcon from "./components/ThemeIcon";
 import { getClients } from "./api/clients";
 import { getTasks } from "./api/tasks";
@@ -127,10 +126,7 @@ function App() {
       <header className="topbar">
         <div className="topbar-top">
           <div className="brand">
-            <EizouMark size={30} />
-            <h1 className="wordmark">
-              EIZOU <span className="wordmark-accent">Creatives</span>
-            </h1>
+            <h1 className="wordmark">EIZOU FILMS</h1>
           </div>
           <button
             type="button"

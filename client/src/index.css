@@ -111,8 +111,6 @@ body {
   margin: 0;
 }
 
-.wordmark-accent { color: var(--muted); font-weight: 500; }
-
 .tagline {
   font-family: var(--font-body);
   font-size: 0.8rem;
