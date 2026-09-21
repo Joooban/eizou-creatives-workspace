@@ -6,6 +6,7 @@ import TaskForm from "./components/TaskForm";
 import { QuotaView } from "./components/QuotaView";
 import { EditorOutput } from "./components/EditorOutput";
 import { DeadlineWatch } from "./components/DeadlineWatch";
+import EizouMark from "./components/EizouMark";
 import { getClients } from "./api/clients";
 import { getTasks } from "./api/tasks";
 import type { Client } from "./types/client";
@@ -16,6 +17,9 @@ import TeamMemberForm from "./components/TeamMemberForm";
 const TaskCalendar = lazy(() => import("./components/TaskCalendar"));
 
 type Tab = "dashboard" | "tasks" | "done" | "calendar" | "clients" | "team";
+type Theme = "dark" | "light";
+
+const THEME_STORAGE_KEY = "eizou-theme";
 
 const TABS: { id: Tab; label: string }[] = [
   { id: "dashboard", label: "Dashboard" },
@@ -26,8 +30,32 @@ const TABS: { id: Tab; label: string }[] = [
   { id: "team", label: "Team" },
 ];
 
+function getInitialTheme(): Theme {
+  try {
+    const stored = localStorage.getItem(THEME_STORAGE_KEY);
+    if (stored === "dark" || stored === "light") return stored;
+  } catch {
+    // localStorage unavailable (e.g. private browsing) — fall through to system preference
+  }
+  return window.matchMedia?.("(prefers-color-scheme: light)").matches ? "light" : "dark";
+}
+
 function App() {
   const [activeTab, setActiveTab] = useState<Tab>("dashboard");
+  const [theme, setTheme] = useState<Theme>(getInitialTheme);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, theme);
+    } catch {
+      // localStorage unavailable — theme just won't persist across visits
+    }
+  }, [theme]);
+
+  function toggleTheme() {
+    setTheme((t) => (t === "dark" ? "light" : "dark"));
+  }
 
   const [clients, setClients] = useState<Client[]>([]);
   const [clientsLoading, setClientsLoading] = useState(true);
@@ -96,9 +124,22 @@ function App() {
   return (
     <div className="app-shell">
       <header className="topbar">
-        <h1 className="wordmark">
-          EIZOU <span className="wordmark-accent">Creatives</span>
-        </h1>
+        <div className="topbar-top">
+          <div className="brand">
+            <EizouMark size={30} />
+            <h1 className="wordmark">
+              EIZOU <span className="wordmark-accent">Creatives</span>
+            </h1>
+          </div>
+          <button
+            type="button"
+            className="btn btn-secondary btn-sm"
+            onClick={toggleTheme}
+            aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+          >
+            {theme === "dark" ? "Light Mode" : "Dark Mode"}
+          </button>
+        </div>
         <p className="tagline">Production tracker for content, clients, and delivery.</p>
         <nav className="filmstrip-tabs">
           {TABS.map((tab) => (
