@@ -5,6 +5,7 @@ import TaskList from "./components/TaskList";
 import TaskForm from "./components/TaskForm";
 import { QuotaView } from "./components/QuotaView";
 import { EditorOutput } from "./components/EditorOutput";
+import { MonthNav } from "./components/MonthNav";
 import { DeadlineWatch } from "./components/DeadlineWatch";
 import ThemeIcon from "./components/ThemeIcon";
 import { getClients } from "./api/clients";
@@ -120,6 +121,7 @@ function App() {
   const now = new Date();
   const currentMonth = now.getMonth() + 1;
   const currentYear = now.getFullYear();
+  const [dashboardPeriod, setDashboardPeriod] = useState({ month: currentMonth, year: currentYear });
 
   return (
     <div className="app-shell">
@@ -154,19 +156,29 @@ function App() {
       <main className="content">
         {activeTab === "dashboard" && (
           <section>
-            <div className="page-header">
-              <h2 className="page-title">Quota Dashboard</h2>
-              <p className="page-subtitle">Monthly deliverable progress across every client.</p>
+            <div className="page-header page-header-row">
+              <div>
+                <h2 className="page-title">Quota Dashboard</h2>
+                <p className="page-subtitle">Monthly deliverable progress across every client.</p>
+              </div>
+              <MonthNav
+                month={dashboardPeriod.month}
+                year={dashboardPeriod.year}
+                currentMonth={currentMonth}
+                currentYear={currentYear}
+                onChange={(month, year) => setDashboardPeriod({ month, year })}
+              />
             </div>
-            <EditorOutput tasks={tasks} month={currentMonth} year={currentYear} />
+            <EditorOutput tasks={tasks} month={dashboardPeriod.month} year={dashboardPeriod.year} />
             <DeadlineWatch tasks={tasks} />
             <div className="quota-grid">
               {clients.map((client) => (
                 <QuotaView
                   key={client.id}
                   client={client}
-                  month={currentMonth}
-                  year={currentYear}
+                  tasks={tasks}
+                  month={dashboardPeriod.month}
+                  year={dashboardPeriod.year}
                   onClientUpdated={handleClientUpdated}
                 />
               ))}

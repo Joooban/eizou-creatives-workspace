@@ -3,9 +3,11 @@ import { getClientQuota, updateClient } from "../api/clients";
 import { upsertDeliverablePlan } from "../api/deliverablePlans";
 import type { Client } from "../types/client";
 import type { ClientQuota, QuotaCategory } from "../types/quota";
+import type { Task } from "../types/task";
 
 interface QuotaViewProps {
   client: Client;
+  tasks: Task[];
   month: number;
   year: number;
   onClientUpdated: (client: Client) => void;
@@ -37,7 +39,53 @@ function QuotaRow({ label, data }: { label: string; data: QuotaCategory }) {
   );
 }
 
-export function QuotaView({ client, month, year, onClientUpdated }: QuotaViewProps) {
+type EditorContribution = { name: string; firstHalf: number; secondHalf: number };
+
+// Mirrors the server's quota count: published tasks with an actual publish date in the month.
+function editorContributions(tasks: Task[], clientId: number, month: number, year: number) {
+  const byEditor = new Map<string, EditorContribution>();
+  for (const t of tasks) {
+    if (t.clientId !== clientId || t.status !== "PUBLISHED" || !t.actualPublishDate) continue;
+    const date = new Date(t.actualPublishDate);
+    if (date.getMonth() + 1 !== month || date.getFullYear() !== year) continue;
+
+    const name = t.assignedTo?.name ?? "Unassigned";
+    const entry = byEditor.get(name) ?? { name, firstHalf: 0, secondHalf: 0 };
+    if (date.getDate() <= 15) entry.firstHalf += t.quantity;
+    else entry.secondHalf += t.quantity;
+    byEditor.set(name, entry);
+  }
+  return [...byEditor.values()].sort(
+    (a, b) => b.firstHalf + b.secondHalf - (a.firstHalf + a.secondHalf)
+  );
+}
+
+function EditorBreakdown({ contributions, lastDay }: { contributions: EditorContribution[]; lastDay: number }) {
+  return (
+    <div className="quota-editors">
+      <div className="quota-editors-head">
+        <span>Editor</span>
+        <span>1–15</span>
+        <span>16–{lastDay}</span>
+        <span>Total</span>
+      </div>
+      {contributions.length === 0 ? (
+        <p className="quota-editors-empty">Nothing published yet.</p>
+      ) : (
+        contributions.map((c) => (
+          <div className="quota-editors-row" key={c.name}>
+            <span>{c.name}</span>
+            <span>{c.firstHalf}</span>
+            <span>{c.secondHalf}</span>
+            <span>{c.firstHalf + c.secondHalf}</span>
+          </div>
+        ))
+      )}
+    </div>
+  );
+}
+
+export function QuotaView({ client, tasks, month, year, onClientUpdated }: QuotaViewProps) {
   const clientId = client.id;
   const [quota, setQuota] = useState<ClientQuota | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -195,6 +243,10 @@ export function QuotaView({ client, month, year, onClientUpdated }: QuotaViewPro
           <QuotaRow label="Graphics" data={quota.graphics} />
           <QuotaRow label="Photo" data={quota.photo} />
           <QuotaRow label="Reels" data={quota.reels} />
+          <EditorBreakdown
+            contributions={editorContributions(tasks, clientId, month, year)}
+            lastDay={new Date(year, month, 0).getDate()}
+          />
         </>
       )}
     </div>

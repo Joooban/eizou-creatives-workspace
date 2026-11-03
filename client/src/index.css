@@ -172,6 +172,14 @@ body {
 
 .page-header { margin-bottom: 1.5rem; }
 
+.page-header-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+}
+
 .page-title {
   font-family: var(--font-display);
   font-weight: 700;
@@ -463,6 +471,46 @@ input:focus, select:focus {
   font-size: 0.78rem;
   color: var(--muted);
   margin-top: 0.2rem;
+}
+
+.month-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.month-nav-label {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  min-width: 9.5rem;
+  text-align: center;
+}
+
+.editor-output-halves {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.editor-output-half {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 0.35rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--panel);
+}
+
+.editor-output-half-label {
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.editor-output-half-count {
+  font-family: var(--font-mono);
+  font-weight: 600;
 }
 
 .editor-output-types {
@@ -944,6 +992,45 @@ input:focus, select:focus {
   margin-bottom: 0.9rem;
   padding-bottom: 0.7rem;
   border-bottom: 1px solid var(--line);
+}
+
+.quota-editors {
+  margin-top: 1rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--line);
+  font-size: 0.8rem;
+}
+
+.quota-editors-head,
+.quota-editors-row {
+  display: grid;
+  grid-template-columns: 1fr repeat(3, 3.2rem);
+  gap: 0.5rem;
+  padding: 0.25rem 0;
+}
+
+.quota-editors-head span:not(:first-child),
+.quota-editors-row span:not(:first-child) {
+  text-align: right;
+  font-family: var(--font-mono);
+}
+
+.quota-editors-head {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+
+.quota-editors-row span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.quota-editors-empty {
+  margin: 0.3rem 0 0;
+  color: var(--muted);
 }
 
 .quota-moodboard-label {
